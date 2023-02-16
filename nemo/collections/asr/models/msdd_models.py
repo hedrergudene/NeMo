@@ -1530,9 +1530,9 @@ class NeuralDiarizer(LightningModule):
         self._cfg.num_workers = num_workers
         self._cfg.diarizer.manifest_filepath = manifest_path
         self._cfg.diarizer.out_dir = tmpdir
-        self._cfg.diarizer.clustering.oracle_num_speakers = num_speakers is not None
+        self._cfg.diarizer.clustering.parameters.oracle_num_speakers = num_speakers is not None
         if max_speakers:
-            self._cfg.diarizer.clustering.max_num_speakers = max_speakers
+            self._cfg.diarizer.clustering.parameters.max_num_speakers = max_speakers
         self.transfer_diar_params_to_model_params(self.msdd_model, self._cfg)
 
     @classmethod
