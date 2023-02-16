@@ -61,7 +61,7 @@ class TestNeuralDiarizerInference:
             assert diarizer.clustering_embedding.clus_diar_model._cluster_params.max_num_speakers == max_num_speakers
 
             if num_speakers:
-                assert diarizer._cfg.diarizer.clustering.oracle_num_speakers
+                assert diarizer._cfg.diarizer.clustering.parameters.oracle_num_speakers
 
             # assert all temporary files are cleaned up
             assert len(os.listdir(out_dir)) == 0
