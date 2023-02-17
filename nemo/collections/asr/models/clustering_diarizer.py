@@ -455,15 +455,15 @@ class ClusteringDiarizer(Model, DiarizationMixin, torch.nn.Module):
             device=self._speaker_model.device,
         )
         self.log_info("Outputs are saved in {} directory".format(os.path.abspath(self._diarizer_params.out_dir)))
-        if self._cfg.evaluate:
-            # Scoring
-            return score_labels(
-                self.AUDIO_RTTM_MAP,
-                all_reference,
-                all_hypothesis,
-                collar=self._diarizer_params.collar,
-                ignore_overlap=self._diarizer_params.ignore_overlap,
-            )
+
+        # Scoring
+        return score_labels(
+            self.AUDIO_RTTM_MAP,
+            all_reference,
+            all_hypothesis,
+            collar=self._diarizer_params.collar,
+            ignore_overlap=self._diarizer_params.ignore_overlap,
+        )
 
     @staticmethod
     def __make_nemo_file_from_folder(filename, source_dir):
