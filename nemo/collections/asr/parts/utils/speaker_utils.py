@@ -430,7 +430,9 @@ def generate_cluster_labels(segment_ranges: List[str], cluster_labels: List[int]
     return diar_hyp, lines
 
 
-def perform_clustering(embs_and_timestamps, AUDIO_RTTM_MAP, out_rttm_dir, clustering_params, device):
+def perform_clustering(
+    embs_and_timestamps, AUDIO_RTTM_MAP, out_rttm_dir, clustering_params, device, verbose: bool = True
+):
     """
     Performs spectral clustering on embeddings with time stamps generated from VAD output
 
@@ -445,6 +447,7 @@ def perform_clustering(embs_and_timestamps, AUDIO_RTTM_MAP, out_rttm_dir, cluste
         oracle_num_speakers (bool), max_rp_threshold(float), sparse_search_volume(int) and enhance_count_threshold (int)
         use_torch_script (bool): Boolean that determines whether to use torch.jit.script for speaker clustering
         device (torch.device): Device we are running on ('cpu', 'cuda').
+        verbose (bool): Enable TQDM progress bar.
 
     Returns:
         all_reference (list[uniq_name,Annotation]): reference annotations for score calculation
@@ -468,7 +471,7 @@ def perform_clustering(embs_and_timestamps, AUDIO_RTTM_MAP, out_rttm_dir, cluste
         speaker_clustering = torch.jit.script(speaker_clustering)
         torch.jit.save(speaker_clustering, 'speaker_clustering_script.pt')
 
-    for uniq_id, audio_rttm_values in tqdm(AUDIO_RTTM_MAP.items(), desc='clustering', leave=True):
+    for uniq_id, audio_rttm_values in tqdm(AUDIO_RTTM_MAP.items(), desc='clustering', leave=True, disable=not verbose):
         uniq_embs_and_timestamps = embs_and_timestamps[uniq_id]
 
         if clustering_params.oracle_num_speakers:

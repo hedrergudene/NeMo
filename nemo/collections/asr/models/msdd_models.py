@@ -1467,6 +1467,7 @@ class NeuralDiarizer(LightningModule):
         max_speakers: Optional[int] = None,
         num_speakers: Optional[int] = None,
         out_dir: Optional[str] = None,
+        verbose: bool = False,
     ) -> Union[Annotation, List[Annotation]]:
         """
         Run the `NeuralDiarizer` inference pipeline.
@@ -1508,6 +1509,7 @@ class NeuralDiarizer(LightningModule):
                 tmpdir=tmpdir,
                 batch_size=batch_size,
                 num_workers=num_workers,
+                verbose=verbose,
             )
 
             self.msdd_model.cfg.test_ds.manifest_filepath = manifest_path
@@ -1524,12 +1526,14 @@ class NeuralDiarizer(LightningModule):
         tmpdir: tempfile.TemporaryDirectory,
         batch_size: int,
         num_workers: int,
+        verbose: bool,
     ) -> None:
         self._cfg.evaluate = False
         self._cfg.batch_size = batch_size
         self._cfg.num_workers = num_workers
         self._cfg.diarizer.manifest_filepath = manifest_path
         self._cfg.diarizer.out_dir = tmpdir
+        self._cfg.verbose = verbose
         self._cfg.diarizer.clustering.parameters.oracle_num_speakers = num_speakers is not None
         if max_speakers:
             self._cfg.diarizer.clustering.parameters.max_num_speakers = max_speakers

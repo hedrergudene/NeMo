@@ -217,7 +217,9 @@ class ClusteringDiarizer(Model, DiarizationMixin, torch.nn.Module):
             data.append(get_uniqname_from_filepath(file))
 
         status = get_vad_stream_status(data)
-        for i, test_batch in enumerate(tqdm(self._vad_model.test_dataloader(), desc='vad', leave=True)):
+        for i, test_batch in enumerate(
+            tqdm(self._vad_model.test_dataloader(), desc='vad', leave=True, disable=not self.verbose)
+        ):
             test_batch = [x.to(self._vad_model.device) for x in test_batch]
             with autocast():
                 log_probs = self._vad_model(input_signal=test_batch[0], input_signal_length=test_batch[1])
@@ -348,7 +350,10 @@ class ClusteringDiarizer(Model, DiarizationMixin, torch.nn.Module):
 
         all_embs = torch.empty([0])
         for test_batch in tqdm(
-            self._speaker_model.test_dataloader(), desc=f'[{scale_idx+1}/{num_scales}] extract embeddings', leave=True
+            self._speaker_model.test_dataloader(),
+            desc=f'[{scale_idx+1}/{num_scales}] extract embeddings',
+            leave=True,
+            disable=not self.verbose,
         ):
             test_batch = [x.to(self._speaker_model.device) for x in test_batch]
             audio_signal, audio_signal_len, labels, slices = test_batch
@@ -453,6 +458,7 @@ class ClusteringDiarizer(Model, DiarizationMixin, torch.nn.Module):
             out_rttm_dir=out_rttm_dir,
             clustering_params=self._cluster_params,
             device=self._speaker_model.device,
+            verbose=self.verbose,
         )
         self.log_info("Outputs are saved in {} directory".format(os.path.abspath(self._diarizer_params.out_dir)))
 
@@ -463,6 +469,7 @@ class ClusteringDiarizer(Model, DiarizationMixin, torch.nn.Module):
             all_hypothesis,
             collar=self._diarizer_params.collar,
             ignore_overlap=self._diarizer_params.ignore_overlap,
+            verbose=self.verbose,
         )
 
     @staticmethod
@@ -546,6 +553,10 @@ class ClusteringDiarizer(Model, DiarizationMixin, torch.nn.Module):
 
         return instance
 
+    @property
+    def verbose(self) -> bool:
+        return self._cfg.verbose
+
     def log_info(self, *args, **kwargs):
-        if self._cfg.verbose:
+        if self.verbose:
             logging.info(*args, **kwargs)
