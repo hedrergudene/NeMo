@@ -49,7 +49,7 @@ from nemo.utils.exceptions import NeMoBaseException
 from nemo.utils.get_rank import is_global_rank_zero
 from nemo.utils.lightning_logger_patch import add_filehandlers_to_pl_logger
 from nemo.utils.model_utils import inject_model_parallel_rank, uninject_model_parallel_rank
-
+from nemo.utils.preemption_callback import PreemptionCallback
 
 class NotFoundError(NeMoBaseException):
     """ Raised when a file or folder is not found"""
@@ -184,6 +184,9 @@ class ExpManagerConfig:
     ema: Optional[EMAParams] = EMAParams()
     # Wall clock time limit
     max_time_per_run: Optional[str] = None
+    # Support Preemption
+    #Errors check
+    #support_preemption: Optional[bool] = False
 
 
 class TimingCallback(Callback):
@@ -493,6 +496,11 @@ def exp_manager(trainer: 'pytorch_lightning.Trainer', cfg: Optional[Union[DictCo
 
         # Add lightning file logging to global_rank zero
         add_filehandlers_to_pl_logger(log_dir / 'lightning_logs.txt', log_dir / 'nemo_error_log.txt')
+
+    #if cfg.support_preemption:
+        # TODO: pass generic device
+    print("-------------------------------")
+    trainer.callbacks.append(PreemptionCallback(torch.device('cuda')))
 
     return log_dir
 
